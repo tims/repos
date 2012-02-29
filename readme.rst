@@ -19,8 +19,7 @@ Which looks something like this::
 Update all repositories
 -----------------------
 
-This just does a git pull on every git repo.
-::
+This just does a git pull on every git repo::
 
   repos.py update
 
