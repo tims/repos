@@ -4,7 +4,7 @@ Repos
 repos.py is a python script for managing my local git repositories.
 
 Config is stored in ~/.repos.json
-Which looks something like this::
+Which looks something like::
 
   {
     "projects": [
