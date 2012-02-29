@@ -9,7 +9,7 @@ Which looks something like this::
   {
     "projects": [
       {
-        "local": "workspace/repos", 
+        "local": "Documents/repos", 
         "provider": "git", 
         "remote": "git@github.com:tims/repos.git"
       }
