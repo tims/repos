@@ -16,8 +16,6 @@ Which looks something like this::
     ]
   }
 
-The local path is relative to your home directory, but it can also be absolute. The remote path can also be a local directory.
-
 Update all repositories
 -----------------------
 
@@ -28,6 +26,8 @@ This just does a git pull on every git repo.
 
 List managed repositories
 -------------------------
+
+List all the repositories being managed::
 
   repos.py ls
 
@@ -57,7 +57,7 @@ Create repositories that are in your .repos.json but not yet cloned locally::
 Get status
 ----------
 
-Run git status on each repo.
+Run git status on each repo::
 
   repos.py status
   
