@@ -20,33 +20,14 @@ def run(args, cwd=None):
     raise e 
   return output
 
-class Project(object):
+class GitProject(object):
   def __init__(self, local, remote, basedir):
     self.local, self.remote, self.basedir = local, remote, basedir
-    
+    self.provider = "git"
+
   def getDict(self):
     # This is not pretty.
     return {"local":self.local,"remote":self.remote,"provider":self.provider}
-    
-# I don't have any svn projects anymore, so whatevs
-class SvnProject(Project):
-  def __init__(self, *args, **kwargs):
-    super(SvnProject, self).__init__(*args, **kwargs)
-    self.provider = "svn"
-
-  def update(self):
-    pass
-    
-  def create(self):
-    pass
-    
-  def status(self):
-    pass
-        
-class GitProject(Project):
-  def __init__(self, *args, **kwargs):
-    super(GitProject, self).__init__(*args, **kwargs)
-    self.provider = "git"
 
   def update(self):
     path = os.path.join(self.basedir, self.local)
@@ -61,7 +42,28 @@ class GitProject(Project):
   def status(self):
     print self.local, "status:"
     path = os.path.abspath(os.path.join(self.basedir, os.path.normpath(self.local)))
+    
+    config = self.getDiskGitConfig(path)
+    actualRemote = None
+    for section in config.sections():
+      if "remote" in section and "origin" in section:
+        actualRemote = config.get(section, "url")
+    if os.path.expanduser(self.remote) != os.path.expanduser(actualRemote):
+      print "Remote origin does not match. Expected %s, got %s" % (self.remote, actualRemote)
     print run(["git", "status"], cwd=path)
+    
+  def getDiskGitConfig(self, path):
+    # hack to remove left hand whitespace so we can use ConfigParser to read the git .config, eww.
+    config = ConfigParser.ConfigParser()
+    f = open(os.path.join(path, '.git/config'))
+    tmp = tempfile.TemporaryFile()
+    for line in f:
+      tmp.write(line.lstrip())
+    f.close()
+    tmp.seek(0)
+    config.readfp(tmp)
+    tmp.close()
+    return config
 
 class Workspace(object):
   def __init__(self, basedir=DEFAULT_BASE_DIR, config=DEFAULT_CONFIG_FILE):
@@ -120,7 +122,6 @@ class Workspace(object):
         remote = config.get(section, "url")
         break
     local = os.path.normpath(os.path.relpath(local, self.basedir))
-    name = os.path.split(local)[1]
     
     print local, remote
     project = GitProject(local, remote, self.basedir)
